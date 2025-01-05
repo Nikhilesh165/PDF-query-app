@@ -57,17 +57,10 @@ def get_pdf_text(filename):
     conn.close()
     return result[0] if result else None
 
-#def get_all_pdfs():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('SELECT filename FROM pdfs')  # Adjust the query as needed
-    pdfs = cursor.fetchall()
-    conn.close()
-    return [pdf[0] for pdf in pdfs]  # Return a list of filenames
 
 init_db()
 
-
+# List uploaded PDFs
 @app.get("/list-pdfs/")
 def list_pdfs():
     try:
@@ -81,7 +74,6 @@ def list_pdfs():
         return JSONResponse(content={"message": str(e)}, status_code=500)
 
 # Query a specific PDF
-
 @app.post("/upload/")
 async def upload_pdf(file: UploadFile = File(...)):
     try:
@@ -98,7 +90,8 @@ async def upload_pdf(file: UploadFile = File(...)):
         return JSONResponse(content={"message": "File uploaded successfully!"}, status_code=200)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to upload PDF: {str(e)}")
-        
+
+# Delete a specific PDF      
 @app.delete("/delete-pdf/{pdf_id}/")
 def delete_pdf(pdf_id: int):
     try:
@@ -129,6 +122,7 @@ def delete_pdf(pdf_id: int):
 class QueryRequest(BaseModel):
     filename: str
     question: str
+# Query a specific PDF
 @app.post("/query/")
 async def query_pdf(request: QueryRequest):
     try:
@@ -160,6 +154,7 @@ async def query_pdf(request: QueryRequest):
         import traceback
         traceback.print_exc()
         return JSONResponse(content={"message": f"Internal server error: {str(e)}"}, status_code=500)
+# Root endpoint
 @app.get("/")
 def root():
     return {"message": "Welcome to the PDF Query App!"}
